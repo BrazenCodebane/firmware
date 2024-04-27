@@ -1,0 +1,19 @@
+Contributors to this variant
+{Brazen aka Cameron Kingsley}
+{Gwizz aka the jedi master}
+{Dubhouze-Tavis aka the wild card}
+
+
+
+
+
+current stage: 
+0 I2C device found at address 0x15
+0 Device found at address 0x15 was not able to be enumerated
+
+
+meshtastic up on the device with issues 
+
+no screen activity
+no touch
+module currently disconnected to preserve function.
