@@ -1,7 +1,7 @@
 #pragma once
 
 // display section
-#define ILI9341_DRIVER
+#define CYD24_DRIVER
 #define SPI_FREQUENCY 40000000
 #define SPI_READ_FREQUENCY 16000000
 #define TFT_MOSI ILI9341_SPI_BUS_MOSI_IO_NUM
@@ -25,10 +25,20 @@
 #define I2C_SDA CST816S_I2C_CONFIG_SDA_IO_NUM // I2C pins for this board
 #define I2C_SCL CST816S_I2C_CONFIG_SCL_IO_NUM
 
+// touch section
+
+#define CST820_CS    // TODO:Pinout
+#define CST820_RS    // TODO:Pinout
+#define CST820_RESET // TODO:Pinout
+#define CST820_SCK SPI_SCK
+#define CST820_MOSI SPI_MOSI
+#define CST820_MISO SPI_MISO
+#define CST820_BUSY -1
+#define CST820_SPI_HOST SPI2_HOST
+
 // #define I2C_DEV_ADDRESS CST816S_IO_I2C_CONFIG_DEV_ADDRESS
-//  #define HAS_TOUCHSCREEN 1
-//  #define SCREEN_TOUCH_INT 16
-//  #define USE_CST816S
+#define HAS_TOUCHSCREEN 1
+#define SCREEN_TOUCH_INT 16
 
 //  #define TOUCH_I2C_PORT 15 //TODO:
 //  #define TOUCH_SLAVE_ADDRESS 0x5D  //TODO:test and check

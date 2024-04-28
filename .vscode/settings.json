@@ -4,5 +4,8 @@
   "trunk.enableWindows": true,
   "files.insertFinalNewline": false,
   "files.trimFinalNewlines": false,
-  "C_Cpp.errorSquiggles": "disabled"
+  "C_Cpp.errorSquiggles": "enabled",
+  "files.associations": {
+    "*.tpp": "cpp"
+  }
 }

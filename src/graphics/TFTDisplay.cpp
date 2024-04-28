@@ -405,6 +405,109 @@ class LGFX : public lgfx::LGFX_Device
 
 static LGFX *tft = nullptr;
 
+#elif defined(CYD24_DRIVER)
+
+#include <LovyanGFX.hpp> // Graphics and font library for ILI9341 driver chip
+
+#if defined(ILI9341_BACKLIGHT_EN) && !defined(TFT_BL)
+#define TFT_BL ILI9341_BACKLIGHT_EN
+#endif
+
+class LGFX : public lgfx::LGFX_Device
+{
+
+    lgfx::Panel_ILI9341 _panel_instance;
+    lgfx::Bus_SPI _bus_instance;
+    lgfx::Light_PWM _light_instance;
+    lgfx::Touch_CST816S _touch_instance;
+
+  public:
+    LGFX(void)
+    {
+        {
+            auto cfg = _bus_instance.config();
+
+            // configure SPI
+            cfg.spi_host = ILI9341_SPI_HOST; // ESP32-S2,S3,C3 : SPI2_HOST or SPI3_HOST / ESP32 : VSPI_HOST or HSPI_HOST
+            cfg.spi_mode = 0;
+            cfg.freq_write = SPI_FREQUENCY; // SPI clock for transmission (up to 80MHz, rounded to the value obtained by dividing
+                                            // 80MHz by an integer)
+            cfg.freq_read = SPI_READ_FREQUENCY; // SPI clock when receiving
+            cfg.spi_3wire = false;              // Set to true if reception is done on the MOSI pin
+            cfg.use_lock = true;                // Set to true to use transaction locking
+            cfg.dma_channel = SPI_DMA_CH_AUTO;  // SPI_DMA_CH_AUTO; // Set DMA channel to use (0=not use DMA / 1=1ch / 2=ch /
+                                                // SPI_DMA_CH_AUTO=auto setting)
+            cfg.pin_sclk = TFT_SCLK;            // Set SPI SCLK pin number
+            cfg.pin_mosi = TFT_MOSI;            // Set SPI MOSI pin number
+            cfg.pin_miso = TFT_MISO;            // Set SPI MISO pin number (-1 = disable)
+            cfg.pin_dc = TFT_DC;                // Set SPI DC pin number (-1 = disable)
+
+            _bus_instance.config(cfg);              // applies the set value to the bus.
+            _panel_instance.setBus(&_bus_instance); // set the bus on the panel.
+        }
+
+        {                                        // Set the display panel control.
+            auto cfg = _panel_instance.config(); // Gets a structure for display panel settings.
+
+            cfg.pin_cs = TFT_CS;     // Pin number where CS is connected (-1 = disable)
+            cfg.pin_rst = TFT_RST;   // Pin number where RST is connected  (-1 = disable)
+            cfg.pin_busy = TFT_BUSY; // Pin number where BUSY is connected (-1 = disable)
+
+            // The following setting values ​​are general initial values ​​for each panel, so please comment out any
+            // unknown items and try them.
+
+            cfg.panel_width = TFT_WIDTH;   // actual displayable width
+            cfg.panel_height = TFT_HEIGHT; // actual displayable height
+            cfg.offset_x = TFT_OFFSET_X;   // Panel offset amount in X direction
+            cfg.offset_y = TFT_OFFSET_Y;   // Panel offset amount in Y direction
+            cfg.offset_rotation = 0;       // Rotation direction value offset 0~7 (4~7 is upside down)
+            cfg.dummy_read_pixel = 8;      // Number of bits for dummy read before pixel readout
+            cfg.dummy_read_bits = 1;       // Number of bits for dummy read before non-pixel data read
+            cfg.readable = true;           // Set to true if data can be read
+            cfg.invert = false;            // Set to true if the light/darkness of the panel is reversed
+            cfg.rgb_order = false;         // Set to true if the panel's red and blue are swapped
+            cfg.dlen_16bit =
+                false;             // Set to true for panels that transmit data length in 16-bit units with 16-bit parallel or SPI
+            cfg.bus_shared = true; // If the bus is shared with the SD card, set to true (bus control with drawJpgFile etc.)
+            // cfg.memory_width = TFT_WIDTH;   // Maximum width supported by the driver IC
+            // cfg.memory_height = TFT_HEIGHT; // Maximum height supported by the driver IC
+            _panel_instance.config(cfg);
+        }
+
+        // Set the backlight control
+        {
+            auto cfg = _light_instance.config(); // Gets a structure for backlight settings.
+
+            cfg.pin_bl = TFT_BL; // Pin number to which the backlight is connected
+            cfg.invert = true;   // true to invert the brightness of the backlight
+            cfg.freq = 44100;    // PWM frequency of backlight
+            cfg.pwm_channel = 1; // PWM channel number to use
+
+            _light_instance.config(cfg);
+            _panel_instance.setLight(&_light_instance); // Set the backlight on the panel.
+        }
+
+        setPanel(&_panel_instance);
+
+        auto touch_cfg = _touch_instance.config();
+
+        touch_cfg.pin_cs = CST820_CS + 0;
+        touch_cfg.x_min = 0;
+        touch_cfg.x_max = TFT_HEIGHT - 1;
+        touch_cfg.y_min = 0;
+        touch_cfg.y_max = TFT_WIDTH - 1;
+        touch_cfg.pin_int = -1;
+        touch_cfg.bus_shared = true;
+        touch_cfg.offset_rotation = 1;
+
+        _touch_instance.config(touch_cfg);
+        _panel_instance.setTouch(&_touch_instance);
+
+        // Drop all other commands to device (we just update the buffer)
+    }
+};
+static LGFX *tft = nullptr;
+
 #elif defined(HX8357_CS)
 #include <LovyanGFX.hpp> // Graphics and font library for HX8357 driver chip
 
@@ -491,7 +594,7 @@ static LGFX *tft = nullptr;
 #endif
 
 #if defined(ST7735_CS) || defined(ST7789_CS) || defined(ILI9341_DRIVER) || defined(RAK14014) || defined(HX8357_CS) ||            \
-    (ARCH_PORTDUINO && HAS_SCREEN != 0)
+    (ARCH_PORTDUINO && HAS_SCREEN != 0) || defined(CYD24_DRIVER)
 #include "SPILock.h"
 #include "TFTDisplay.h"
 #include <SPI.h>
@@ -710,91 +813,4 @@ bool TFTDisplay::connect()
 
     return true;
 }
-#endif
-#if defined(ILI9341_2_DRIVER)
-
-#include <LovyanGFX.hpp> // Graphics and font library for ILI9341 driver chip
-
-#if defined(ILI9341_BACKLIGHT_EN) && !defined(TFT_BL)
-#define TFT_BL ILI9341_BACKLIGHT_EN
-#endif
-
-class LGFX : public lgfx::LGFX_Device
-{
-    lgfx::Panel_ILI9341 _panel_instance;
-    lgfx::Bus_SPI _bus_instance;
-    lgfx::Light_PWM _light_instance;
-
-  public:
-    LGFX(void)
-    {
-        {
-            auto cfg = _bus_instance.config();
-
-            // configure SPI
-            cfg.spi_host = ILI9341_SPI_HOST; // ESP32-S2,S3,C3 : SPI2_HOST or SPI3_HOST / ESP32 : VSPI_HOST or HSPI_HOST
-            cfg.spi_mode = 0;
-            cfg.freq_write = SPI_FREQUENCY; // SPI clock for transmission (up to 80MHz, rounded to the value obtained by dividing
-                                            // 80MHz by an integer)
-            cfg.freq_read = SPI_READ_FREQUENCY; // SPI clock when receiving
-            cfg.spi_3wire = false;              // Set to true if reception is done on the MOSI pin
-            cfg.use_lock = true;                // Set to true to use transaction locking
-            cfg.dma_channel = SPI_DMA_CH_AUTO;  // SPI_DMA_CH_AUTO; // Set DMA channel to use (0=not use DMA / 1=1ch / 2=ch /
-                                                // SPI_DMA_CH_AUTO=auto setting)
-            cfg.pin_sclk = TFT_SCLK;            // Set SPI SCLK pin number
-            cfg.pin_mosi = TFT_MOSI;            // Set SPI MOSI pin number
-            cfg.pin_miso = TFT_MISO;            // Set SPI MISO pin number (-1 = disable)
-            cfg.pin_dc = TFT_DC;                // Set SPI DC pin number (-1 = disable)
-
-            _bus_instance.config(cfg);              // applies the set value to the bus.
-            _panel_instance.setBus(&_bus_instance); // set the bus on the panel.
-        }
-
-        {                                        // Set the display panel control.
-            auto cfg = _panel_instance.config(); // Gets a structure for display panel settings.
-
-            cfg.pin_cs = TFT_CS;     // Pin number where CS is connected (-1 = disable)
-            cfg.pin_rst = TFT_RST;   // Pin number where RST is connected  (-1 = disable)
-            cfg.pin_busy = TFT_BUSY; // Pin number where BUSY is connected (-1 = disable)
-
-            // The following setting values ​​are general initial values ​​for each panel, so please comment out any
-            // unknown items and try them.
-
-            cfg.panel_width = TFT_WIDTH;   // actual displayable width
-            cfg.panel_height = TFT_HEIGHT; // actual displayable height
-            cfg.offset_x = TFT_OFFSET_X;   // Panel offset amount in X direction
-            cfg.offset_y = TFT_OFFSET_Y;   // Panel offset amount in Y direction
-            cfg.offset_rotation = 0;       // Rotation direction value offset 0~7 (4~7 is upside down)
-            cfg.dummy_read_pixel = 8;      // Number of bits for dummy read before pixel readout
-            cfg.dummy_read_bits = 1;       // Number of bits for dummy read before non-pixel data read
-            cfg.readable = true;           // Set to true if data can be read
-            cfg.invert = true;             // Set to true if the light/darkness of the panel is reversed
-            cfg.rgb_order = false;         // Set to true if the panel's red and blue are swapped
-            cfg.dlen_16bit =
-                false;             // Set to true for panels that transmit data length in 16-bit units with 16-bit parallel or SPI
-            cfg.bus_shared = true; // If the bus is shared with the SD card, set to true (bus control with drawJpgFile etc.)
-            // cfg.memory_width = TFT_WIDTH;   // Maximum width supported by the driver IC
-            // cfg.memory_height = TFT_HEIGHT; // Maximum height supported by the driver IC
-            _panel_instance.config(cfg);
-        }
-
-        // Set the backlight control
-        {
-            auto cfg = _light_instance.config(); // Gets a structure for backlight settings.
-
-            cfg.pin_bl = TFT_BL; // Pin number to which the backlight is connected
-            cfg.invert = true;   // true to invert the brightness of the backlight
-            cfg.freq = 44100;    // PWM frequency of backlight
-            cfg.pwm_channel = 1; // PWM channel number to use
-
-            _light_instance.config(cfg);
-            _panel_instance.setLight(&_light_instance); // Set the backlight on the panel.
-        }
-
-        setPanel(&_panel_instance);
-    }
-};
-
-static LGFX *tft = nullptr;
-
 #endif
