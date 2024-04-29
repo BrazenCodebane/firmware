@@ -1,7 +1,8 @@
 #pragma once
 
 // display section
-#define CYD24_DRIVER
+#define CYD24
+
 #define SPI_FREQUENCY 40000000
 #define SPI_READ_FREQUENCY 16000000
 #define TFT_MOSI ILI9341_SPI_BUS_MOSI_IO_NUM

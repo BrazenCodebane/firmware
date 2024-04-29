@@ -405,7 +405,7 @@ class LGFX : public lgfx::LGFX_Device
 
 static LGFX *tft = nullptr;
 
-#elif defined(CYD24_DRIVER)
+#elif defined(CYD24)
 
 #include <LovyanGFX.hpp> // Graphics and font library for ILI9341 driver chip
 
@@ -594,7 +594,7 @@ static LGFX *tft = nullptr;
 #endif
 
 #if defined(ST7735_CS) || defined(ST7789_CS) || defined(ILI9341_DRIVER) || defined(RAK14014) || defined(HX8357_CS) ||            \
-    (ARCH_PORTDUINO && HAS_SCREEN != 0) || defined(CYD24_DRIVER)
+    (ARCH_PORTDUINO && HAS_SCREEN != 0) || defined(CYD24)
 #include "SPILock.h"
 #include "TFTDisplay.h"
 #include <SPI.h>
