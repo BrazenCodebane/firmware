@@ -528,8 +528,8 @@ static void drawNodes(OLEDDisplay *display, int16_t x, int16_t y, const NodeStat
 {
     char usersString[20];
     snprintf(usersString, sizeof(usersString), "%d/%d", nodeStatus->getNumOnline(), nodeStatus->getNumTotal());
-#if (defined(USE_EINK) || defined(ILI9341_DRIVER) || defined(ST7735_CS) || defined(ST7789_CS) || defined(HX8357_CS)) &&          \
-    !defined(DISPLAY_FORCE_SMALL_FONTS)
+#if (defined(USE_EINK) || defined(ILI9341_DRIVER) || defined(ST7735_CS) || defined(ST7789_CS) || defined(HX8357_CS)) ||          \
+    defined(CYD24) && !defined(DISPLAY_FORCE_SMALL_FONTS)
     display->drawFastImage(x, y + 3, 8, 8, imgUser);
 #else
     display->drawFastImage(x, y, 8, 8, imgUser);
@@ -955,7 +955,8 @@ Screen::Screen(ScanI2C::DeviceAddress address, meshtastic_Config_DisplayConfig_O
 #elif defined(USE_SSD1306)
     dispdev = new SSD1306Wire(address.address, -1, -1, geometry,
                               (address.port == ScanI2C::I2CPort::WIRE1) ? HW_I2C::I2C_TWO : HW_I2C::I2C_ONE);
-#elif defined(ST7735_CS) || defined(ILI9341_DRIVER) || defined(ST7789_CS) || defined(RAK14014) || defined(HX8357_CS)
+#elif defined(ST7735_CS) || defined(ILI9341_DRIVER) || defined(ST7789_CS) || defined(RAK14014) || defined(HX8357_CS) ||          \
+    defined(CYD24)
     dispdev = new TFTDisplay(address.address, -1, -1, geometry,
                              (address.port == ScanI2C::I2CPort::WIRE1) ? HW_I2C::I2C_TWO : HW_I2C::I2C_ONE);
 #elif defined(USE_EINK) && !defined(USE_EINK_DYNAMICDISPLAY)
@@ -1101,7 +1102,8 @@ void Screen::setup()
     // Standard behaviour is to FLIP the screen (needed on T-Beam). If this config item is set, unflip it, and thereby logically
     // flip it. If you have a headache now, you're welcome.
     if (!config.display.flip_screen) {
-#if defined(ST7735_CS) || defined(ILI9341_DRIVER) || defined(ST7789_CS) || defined(RAK14014) || defined(HX8357_CS)
+#if defined(ST7735_CS) || defined(ILI9341_DRIVER) || defined(ST7789_CS) || defined(RAK14014) || defined(HX8357_CS) ||            \
+    defined(CYD24)
         static_cast<TFTDisplay *>(dispdev)->flipScreenVertically();
 #else
         dispdev->flipScreenVertically();
@@ -1709,8 +1711,8 @@ void DebugInfo::drawFrame(OLEDDisplay *display, OLEDDisplayUiState *state, int16
 #ifdef ARCH_ESP32
         if (millis() - storeForwardModule->lastHeartbeat >
             (storeForwardModule->heartbeatInterval * 1200)) { // no heartbeat, overlap a bit
-#if (defined(USE_EINK) || defined(ILI9341_DRIVER) || defined(ST7735_CS) || defined(ST7789_CS) || defined(HX8357_CS)) &&          \
-    !defined(DISPLAY_FORCE_SMALL_FONTS)
+#if (defined(USE_EINK) || defined(ILI9341_DRIVER) || defined(ST7735_CS) || defined(ST7789_CS) || defined(HX8357_CS)) ||          \
+    defined(CYD24) && !defined(DISPLAY_FORCE_SMALL_FONTS)
             display->drawFastImage(x + SCREEN_WIDTH - 14 - display->getStringWidth(ourId), y + 3 + FONT_HEIGHT_SMALL, 12, 8,
                                    imgQuestionL1);
             display->drawFastImage(x + SCREEN_WIDTH - 14 - display->getStringWidth(ourId), y + 11 + FONT_HEIGHT_SMALL, 12, 8,
@@ -1720,8 +1722,8 @@ void DebugInfo::drawFrame(OLEDDisplay *display, OLEDDisplayUiState *state, int16
                                    imgQuestion);
 #endif
         } else {
-#if (defined(USE_EINK) || defined(ILI9341_DRIVER) || defined(ST7735_CS) || defined(ST7789_CS) || defined(HX8357_CS)) &&          \
-    !defined(DISPLAY_FORCE_SMALL_FONTS)
+#if (defined(USE_EINK) || defined(ILI9341_DRIVER) || defined(ST7735_CS) || defined(ST7789_CS) || defined(HX8357_CS)) ||          \
+    defined(CYD24) && !defined(DISPLAY_FORCE_SMALL_FONTS)
             display->drawFastImage(x + SCREEN_WIDTH - 18 - display->getStringWidth(ourId), y + 3 + FONT_HEIGHT_SMALL, 16, 8,
                                    imgSFL1);
             display->drawFastImage(x + SCREEN_WIDTH - 18 - display->getStringWidth(ourId), y + 11 + FONT_HEIGHT_SMALL, 16, 8,
@@ -1735,8 +1737,8 @@ void DebugInfo::drawFrame(OLEDDisplay *display, OLEDDisplayUiState *state, int16
     } else {
         // TODO: Raspberry Pi supports more than just the one screen size
 #if (defined(USE_EINK) || defined(ILI9341_DRIVER) || defined(ST7735_CS) || defined(ST7789_CS) || defined(HX8357_CS) ||           \
-     ARCH_PORTDUINO) &&                                                                                                          \
-    !defined(DISPLAY_FORCE_SMALL_FONTS)
+     ARCH_PORTDUINO) ||                                                                                                          \
+    defined(CYD24) && !defined(DISPLAY_FORCE_SMALL_FONTS)
         display->drawFastImage(x + SCREEN_WIDTH - 14 - display->getStringWidth(ourId), y + 3 + FONT_HEIGHT_SMALL, 12, 8,
                                imgInfoL1);
         display->drawFastImage(x + SCREEN_WIDTH - 14 - display->getStringWidth(ourId), y + 11 + FONT_HEIGHT_SMALL, 12, 8,
