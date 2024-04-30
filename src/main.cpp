@@ -801,6 +801,12 @@ void setup()
     }
 #endif
 
+#if defined(CYD24)
+
+    // TODO: add CYD24 section
+
+#endif
+
 #if defined(RF95_IRQ)
     if (!rIf) {
         rIf = new RF95Interface(RadioLibHAL, LORA_CS, RF95_IRQ, RF95_RESET, RF95_DIO1);
@@ -873,16 +879,16 @@ void setup()
 
     // check if the radio chip matches the selected region
 
-    if ((config.lora.region == meshtastic_Config_LoRaConfig_RegionCode_LORA_24) && (!rIf->wideLora())) {
-        LOG_WARN("Radio chip does not support 2.4GHz LoRa. Reverting to unset.\n");
-        config.lora.region = meshtastic_Config_LoRaConfig_RegionCode_UNSET;
-        nodeDB->saveToDisk(SEGMENT_CONFIG);
-        if (!rIf->reconfigure()) {
-            LOG_WARN("Reconfigure failed, rebooting\n");
-            screen->startRebootScreen();
-            rebootAtMsec = millis() + 5000;
-        }
-    }
+    /* if ((config.lora.region == meshtastic_Config_LoRaConfig_RegionCode_LORA_24) && (!rIf->wideLora())) {
+         LOG_WARN("Radio chip does not support 2.4GHz LoRa. Reverting to unset.\n");
+         config.lora.region = meshtastic_Config_LoRaConfig_RegionCode_UNSET;
+         nodeDB->saveToDisk(SEGMENT_CONFIG);
+         if (!rIf->reconfigure()) {
+             LOG_WARN("Reconfigure failed, rebooting\n");
+             screen->startRebootScreen();
+             rebootAtMsec = millis() + 5000;
+         }
+     }*/
 
 #if !MESHTASTIC_EXCLUDE_MQTT
     mqttInit();
@@ -919,7 +925,8 @@ void setup()
     airTime = new AirTime();
 
     if (!rIf)
-        RECORD_CRITICALERROR(meshtastic_CriticalErrorCode_NO_RADIO);
+        LOG_DEBUG("thing we know about");
+    // RECORD_CRITICALERROR(meshtastic_CriticalErrorCode_NO_RADIO);
     else {
         router->addInterface(rIf);
 
