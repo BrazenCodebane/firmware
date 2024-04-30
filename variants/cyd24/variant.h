@@ -27,22 +27,21 @@
 #define I2C_SCL CST816S_I2C_CONFIG_SCL_IO_NUM
 
 // touch section
+#define TOUCH_I2C_PORT 15
+#define TOUCH_SLAVE_ADDRESS 0x5D
+#define TOUCH_CS TF_CS
+// #define TOUCH_RS    // TODO:Pinout
+#define TOUCH_RESET CST816S_TOUCH_CONFIG_RST_GPIO_NUM
+// #define TOUCH_SCK TF_SPI_SCK
+// #define TOUCH_MOSI TF_SPI_MOSI
+// #define TOUCH_MISO TF_SPI_MISO
+#define TOUCH_BUSY -1
+#define TOUCH_I2C_HOST CST816S_I2C_HOST
+#define I2C_DEV_ADDRESS CST816S_IO_I2C_CONFIG_DEV_ADDRESS
 
-#define CST820_CS    // TODO:Pinout
-#define CST820_RS    // TODO:Pinout
-#define CST820_RESET // TODO:Pinout
-#define CST820_SCK SPI_SCK
-#define CST820_MOSI SPI_MOSI
-#define CST820_MISO SPI_MISO
-#define CST820_BUSY -1
-#define CST820_SPI_HOST SPI2_HOST
-
-// #define I2C_DEV_ADDRESS CST816S_IO_I2C_CONFIG_DEV_ADDRESS
 #define HAS_TOUCHSCREEN 1
 #define SCREEN_TOUCH_INT 16
-
-//  #define TOUCH_I2C_PORT 15 //TODO:
-//  #define TOUCH_SLAVE_ADDRESS 0x5D  //TODO:test and check
+#define SCREEN_TOUCH_USE_I2C
 
 // LoRa Section
 // module is a Reyax Rylr 933 lite
@@ -53,3 +52,10 @@
 #define LORA_MISO TFT_MISO
 #define LORA_SCK TFT_SCLK
 #define LORA_CS -1
+
+// LED SECTION
+// RGB LED configuration
+#define RGBLED_RED RGB_LED_R
+#define RGBLED_GREEN RGB_LED_G
+#define RGBLED_BLUE RGB_LED_B
+#define RGBLED_CA
