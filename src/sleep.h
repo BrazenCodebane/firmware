@@ -48,3 +48,10 @@ void enableModemSleep();
 void enableLoraInterrupt();
 bool shouldLoraWake(uint32_t msecToWake);
 #endif
+#if defined(CYD24)
+
+void activate();
+void deactivate();
+void _OnButtonClick();
+
+#endif

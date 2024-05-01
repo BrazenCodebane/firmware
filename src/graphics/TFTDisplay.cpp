@@ -501,13 +501,9 @@ class LGFX : public lgfx::LGFX_Device
         touch_cfg.offset_rotation = 1;
         touch_cfg.i2c_port = TOUCH_I2C_PORT;
         touch_cfg.i2c_addr = TOUCH_SLAVE_ADDRESS;
-#ifdef SCREEN_TOUCH_USE_I2C1
-        cfg.pin_sda = I2C_SDA1;
-        cfg.pin_scl = I2C_SCL1;
-#else
+
         touch_cfg.pin_sda = I2C_SDA;
         touch_cfg.pin_scl = I2C_SCL;
-#endif
 
         _touch_instance.config(touch_cfg);
         _panel_instance.setTouch(&_touch_instance);

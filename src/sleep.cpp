@@ -491,3 +491,39 @@ void enableLoraInterrupt()
 #endif
 }
 #endif
+
+#if defined(CYD24)
+
+// TODO:
+namespace Sleep
+{
+class SLEEPMODE
+{
+
+  public:
+    void activate()
+    {
+        // turn off backlight
+        // disable cs pin?
+    }
+    void deactivate()
+    {
+        // turnon backlight
+        /// enable cs pin?
+    }
+    bool active() { return TFT_BL == 0; }
+};
+} // namespace Sleep
+
+void _OnButtonClick()
+{
+    Sleep::SLEEPMODE sleep;
+
+    if (sleep.active()) {
+        sleep.deactivate();
+    } else if (!sleep.active()) {
+        sleep.activate();
+    }
+}
+
+#endif
